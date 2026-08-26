@@ -1,0 +1,40 @@
+name: Update Nino 3.4 graphs
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 6 * * *"
+      timezone: "Europe/Brussels"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate graphs
+        run: python nino34.py
+
+      - name: Save updated graphs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add *.png
+          git commit -m "Update Nino graphs" || exit 0
+          git push
